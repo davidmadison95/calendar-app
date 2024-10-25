@@ -1,8 +1,11 @@
+// Initialize global events object
+window.events = JSON.parse(localStorage.getItem('calendar-events')) || {};
+
 document.addEventListener('DOMContentLoaded', () => {
     // State Management
     let currentDate = new Date();
     let selectedDate = null;
-    let events = JSON.parse(localStorage.getItem('calendar-events')) || {};
+    let selectedEventId = null;
     
     // DOM Elements
     const monthYearElement = document.getElementById('month-year');
@@ -13,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const eventDescriptionInput = document.getElementById('event-description');
     const eventCategorySelect = document.getElementById('event-category');
     const eventList = document.getElementById('event-list');
-    let selectedEventId = null;
+    const deleteButton = document.getElementById('delete-event');
 
     // Utility Functions
     const formatDate = (date) => {
@@ -65,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
             title,
             description,
             category,
+            tags: TagsModule.getEventTags(),
             recurrence: RecurrenceModule.getRecurrenceRule()
         };
 
@@ -169,6 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `).join('');
 
+        // Show delete button only when editing an event
+        deleteButton.style.display = 'none';
         clearEventForm();
         selectedEventId = null;
         eventModal.classList.add('active');
@@ -183,8 +189,15 @@ document.addEventListener('DOMContentLoaded', () => {
         eventDescriptionInput.value = event.description || '';
         eventCategorySelect.value = event.category;
 
+        // Show delete button when editing
+        deleteButton.style.display = 'block';
+
         if (event.recurrence) {
             RecurrenceModule.setRecurrenceRule(event.recurrence);
+        }
+        
+        if (event.tags) {
+            TagsModule.setEventTags(event.tags);
         }
     };
 
@@ -194,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         eventCategorySelect.value = 'work';
         selectedEventId = null;
         RecurrenceModule.clearRecurrenceForm();
+        TagsModule.clearEventTags();
     };
 
     const closeModal = () => {
@@ -207,7 +221,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Clear existing calendar days
         const dayElements = calendarGrid.querySelectorAll('.day');
-        dayElements.forEach(day => day.remove());
+        dayElements.forEach(day => {
+            if (!day.classList.contains('day-label')) {
+                day.remove();
+            }
+        });
 
         const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
         const lastDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
@@ -249,6 +267,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         eventElement.classList.add('recurring');
                     }
                     eventElement.textContent = event.title;
+                    
+                    // Make event draggable
+                    DragDropModule.makeEventDraggable(eventElement, event, date);
+                    
                     dayElement.appendChild(eventElement);
                 } else if (index === 3) {
                     const moreElement = document.createElement('div');
@@ -257,6 +279,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     dayElement.appendChild(moreElement);
                 }
             });
+
+            // Make day a drop zone for drag and drop
+            DragDropModule.setupDropZone(dayElement, date);
 
             dayElement.addEventListener('click', () => showEventsForDate(date));
             calendarGrid.appendChild(dayElement);
@@ -269,6 +294,20 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('next-month').addEventListener('click', () => navigateMonth(1));
     document.getElementById('save-event').addEventListener('click', saveEvent);
     document.getElementById('close-modal').addEventListener('click', closeModal);
+    deleteButton.addEventListener('click', () => {
+        if (selectedEventId) {
+            const dateKey = formatDate(selectedDate);
+            const event = events[dateKey].find(e => e.id === selectedEventId);
+            const isRecurring = event.recurrence || event.recurrenceId;
+            
+            if (isRecurring) {
+                const confirmDelete = confirm('Delete all occurrences of this recurring event?');
+                deleteEvent(dateKey, selectedEventId, confirmDelete);
+            } else {
+                deleteEvent(dateKey, selectedEventId);
+            }
+        }
+    });
 
     // Close modal when clicking outside
     eventModal.addEventListener('click', (e) => {
@@ -282,12 +321,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initialize
+    // Make functions globally available
+    window.editEvent = editEvent;
+    window.deleteEvent = deleteEvent;
+
+    // Initialize theme
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-theme');
         document.querySelector('#theme-toggle i').classList.replace('fa-moon', 'fa-sun');
     }
+
+    // Initialize all modules
+    TagsModule.initialize();
+    RecurrenceModule.initialize();
+    DragDropModule.initialize();
 
     // Initialize calendar
     renderCalendar();
