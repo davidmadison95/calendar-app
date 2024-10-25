@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // DOM Elements
     const monthYearElement = document.getElementById('month-year');
-    const calendarGrid = document.getElementById('calendar-grid');
+    const calendarGrid = document.querySelector('.days-grid'); // Updated selector
     const eventModal = document.getElementById('event-modal');
     const modalTitle = document.getElementById('modal-title');
     const eventTitleInput = document.getElementById('event-title');
@@ -206,8 +206,12 @@ document.addEventListener('DOMContentLoaded', () => {
         eventDescriptionInput.value = '';
         eventCategorySelect.value = 'work';
         selectedEventId = null;
-        RecurrenceModule.clearRecurrenceForm();
-        TagsModule.clearEventTags();
+        if (RecurrenceModule.clearRecurrenceForm) {
+            RecurrenceModule.clearRecurrenceForm();
+        }
+        if (TagsModule.clearEventTags) {
+            TagsModule.clearEventTags();
+        }
     };
 
     const closeModal = () => {
@@ -220,12 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMonthYear();
 
         // Clear existing calendar days
-        const dayElements = calendarGrid.querySelectorAll('.day');
-        dayElements.forEach(day => {
-            if (!day.classList.contains('day-label')) {
-                day.remove();
-            }
-        });
+        calendarGrid.innerHTML = '';
 
         const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
         const lastDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
@@ -280,6 +279,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
+            // Add weather if enabled
+            if (WeatherModule && WeatherModule.addWeatherToDay) {
+                WeatherModule.addWeatherToDay(dayElement, date);
+            }
+
             // Make day a drop zone for drag and drop
             DragDropModule.setupDropZone(dayElement, date);
 
@@ -324,6 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Make functions globally available
     window.editEvent = editEvent;
     window.deleteEvent = deleteEvent;
+    window.renderCalendar = renderCalendar;
 
     // Initialize theme
     const savedTheme = localStorage.getItem('theme');
@@ -333,9 +338,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Initialize all modules
-    TagsModule.initialize();
-    RecurrenceModule.initialize();
-    DragDropModule.initialize();
+    if (TagsModule && TagsModule.initialize) TagsModule.initialize();
+    if (RecurrenceModule && RecurrenceModule.initialize) RecurrenceModule.initialize();
+    if (DragDropModule && DragDropModule.initialize) DragDropModule.initialize();
+    if (WeatherModule && WeatherModule.initialize) WeatherModule.initialize();
 
     // Initialize calendar
     renderCalendar();
