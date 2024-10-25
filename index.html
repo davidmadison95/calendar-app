@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Calendar with Recurrence</title>
+    <title>Interactive Calendar</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <div class="calendar-container">
-        <header class="calendar-header">
-            <h1 class="month-year" id="month-year"></h1>
+        <div class="calendar-header">
+            <h1 id="month-year" class="month-year"></h1>
             <div class="controls">
-                <button class="control-button" id="theme-toggle">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <button class="control-button" id="prev-month">
+                <button id="prev-month" class="nav-button">
                     <i class="fas fa-chevron-left"></i>
                 </button>
-                <button class="control-button" id="next-month">
+                <button id="theme-toggle" class="nav-button">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="next-month" class="nav-button">
                     <i class="fas fa-chevron-right"></i>
                 </button>
             </div>
-        </header>
+        </div>
 
-        <div class="calendar-grid" id="calendar-grid">
+        <div id="calendar-grid" class="calendar-grid">
             <div class="day-label">Sun</div>
             <div class="day-label">Mon</div>
             <div class="day-label">Tue</div>
@@ -35,16 +35,15 @@
         </div>
     </div>
 
-    <!-- Event Modal -->
-    <div class="modal" id="event-modal">
+    <div id="event-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modal-title">Add Event</h2>
-                <button class="control-button" id="close-modal">
+                <button id="close-modal" class="close-button">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            
+
             <div class="input-group">
                 <label for="event-title">Event Title</label>
                 <input type="text" id="event-title" class="input-field" placeholder="Enter event title">
@@ -52,8 +51,7 @@
 
             <div class="input-group">
                 <label for="event-description">Description</label>
-                <textarea id="event-description" class="input-field" rows="3" 
-                          placeholder="Enter event description"></textarea>
+                <textarea id="event-description" class="input-field" placeholder="Enter event description"></textarea>
             </div>
 
             <div class="input-group">
@@ -68,19 +66,20 @@
                 </select>
             </div>
 
-            <!-- Recurrence UI will be inserted here by RecurrenceModule -->
+            <div id="event-list" class="event-list"></div>
 
             <div class="button-group">
-                <button class="button secondary-button" id="delete-event">Delete</button>
-                <button class="button primary-button" id="save-event">Save Event</button>
+                <button id="delete-event" class="button secondary-button">Delete</button>
+                <button id="save-event" class="button primary-button">Save Event</button>
             </div>
-
-            <div id="event-list"></div>
         </div>
     </div>
 
     <!-- Scripts -->
-    <script src="recurrence.js" type="module"></script>
-    <script src="app.js" type="module"></script>
-<script src="drag-drop.js" type="module"></script><script src="tags.js" type="module"></script><script src="weather.js" type="module"></script></body>
+    <script src="tags.js"></script>
+    <script src="weather.js"></script>
+    <script src="recurrence.js"></script>
+    <script src="drag-drop.js"></script>
+    <script src="app.js"></script>
+</body>
 </html>
