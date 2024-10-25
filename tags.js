@@ -28,11 +28,12 @@ const TagsModule = {
 
             .tag-input {
                 width: 100%;
-                padding: 8px;
+                padding: 8px 12px;
                 border: 1px solid var(--border);
                 border-radius: 6px;
                 background: var(--background);
                 color: var(--text);
+                font-size: 0.9em;
             }
 
             .tag-suggestions {
@@ -51,9 +52,10 @@ const TagsModule = {
             }
 
             .tag-suggestion {
-                padding: 8px;
+                padding: 8px 12px;
                 cursor: pointer;
                 transition: background-color 0.2s;
+                color: var(--text);
             }
 
             .tag-suggestion:hover {
@@ -64,12 +66,14 @@ const TagsModule = {
                 display: inline-flex;
                 align-items: center;
                 gap: 4px;
-                padding: 4px 8px;
+                padding: 4px 12px;
                 background: var(--surface);
+                border: 1px solid var(--border);
                 border-radius: 16px;
                 font-size: 0.8em;
                 cursor: pointer;
                 transition: all 0.2s ease;
+                color: var(--text);
             }
 
             .tag:hover {
@@ -80,6 +84,7 @@ const TagsModule = {
             .tag.active {
                 background: var(--primary);
                 color: white;
+                border-color: var(--primary);
             }
 
             .tag-remove {
@@ -92,6 +97,7 @@ const TagsModule = {
                 background: rgba(0, 0, 0, 0.1);
                 cursor: pointer;
                 transition: all 0.2s;
+                margin-left: 4px;
             }
 
             .tag-remove:hover {
@@ -103,27 +109,44 @@ const TagsModule = {
                 align-items: center;
                 gap: 8px;
                 margin-bottom: 16px;
-                padding: 8px;
+                padding: 12px;
                 background: var(--surface);
                 border-radius: 8px;
                 overflow-x: auto;
+                border: 1px solid var(--border);
             }
 
             .clear-filters {
-                padding: 4px 8px;
+                padding: 4px 12px;
                 background: var(--primary);
                 color: white;
                 border-radius: 4px;
                 cursor: pointer;
                 font-size: 0.8em;
                 white-space: nowrap;
+                border: none;
+                transition: background-color 0.2s;
+            }
+
+            .clear-filters:hover {
+                background: var(--primary-hover);
             }
 
             .event-tags {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 4px;
-                margin-top: 4px;
+                margin-top: 8px;
+            }
+
+            .highlight {
+                animation: highlight 0.3s ease-out;
+            }
+
+            @keyframes highlight {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.02); }
+                100% { transform: scale(1); }
             }
         `;
         document.head.appendChild(style);
@@ -132,7 +155,7 @@ const TagsModule = {
     setupTagsUI() {
         const modalContent = document.querySelector('.modal-content');
         const tagInput = this.createTagInput();
-        modalContent.insertBefore(tagInput, document.getElementById('save-event').parentElement);
+        modalContent.insertBefore(tagInput, document.querySelector('.button-group'));
     },
 
     setupFilterBar() {
@@ -142,7 +165,7 @@ const TagsModule = {
         filterBar.innerHTML = `
             <div class="tags-container"></div>
             <button class="clear-filters" style="display: none;">
-                <i class="fas fa-times"></i> Clear Filters
+                Clear Filters
             </button>
         `;
         calendar.insertBefore(filterBar, calendar.firstChild);
@@ -241,11 +264,7 @@ const TagsModule = {
         this.tags.add(tagName);
         this.saveTags();
         this.updateFilterBar();
-        
-        // Show feedback animation
-        const filterBar = document.querySelector('.filter-bar');
-        filterBar.classList.add('highlight');
-        setTimeout(() => filterBar.classList.remove('highlight'), 300);
+        this.highlightFilterBar();
     },
 
     removeTag(tagName) {
@@ -267,8 +286,9 @@ const TagsModule = {
     },
 
     applyFilters() {
-        if (this.activeFilters.size === 0) {
-            renderCalendar();
+        const events = window.events;
+        if (!events || this.activeFilters.size === 0) {
+            window.renderCalendar();
             document.querySelector('.clear-filters').style.display = 'none';
             return;
         }
@@ -276,7 +296,7 @@ const TagsModule = {
         document.querySelector('.clear-filters').style.display = 'block';
 
         const filteredEvents = {};
-        Object.entries(window.events).forEach(([date, dayEvents]) => {
+        Object.entries(events).forEach(([date, dayEvents]) => {
             const filtered = dayEvents.filter(event => 
                 event.tags && event.tags.some(tag => 
                     this.activeFilters.has(tag.toLowerCase())
@@ -287,7 +307,9 @@ const TagsModule = {
             }
         });
 
-        renderCalendar(filteredEvents);
+        window.events = filteredEvents;
+        window.renderCalendar();
+        window.events = events; // Restore original events
     },
 
     clearFilters() {
@@ -308,19 +330,26 @@ const TagsModule = {
             `)
             .join('');
 
-        // Add event listeners
         container.querySelectorAll('.tag').forEach(tagElement => {
             const tagName = tagElement.dataset.tag;
+            
             tagElement.addEventListener('click', (e) => {
                 if (!e.target.classList.contains('tag-remove')) {
                     this.toggleFilter(tagName);
                 }
             });
+            
             tagElement.querySelector('.tag-remove').addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.removeTag(tagName);
             });
         });
+    },
+
+    highlightFilterBar() {
+        const filterBar = document.querySelector('.filter-bar');
+        filterBar.classList.add('highlight');
+        setTimeout(() => filterBar.classList.remove('highlight'), 300);
     },
 
     getEventTags() {
@@ -330,6 +359,20 @@ const TagsModule = {
             .split(',')
             .map(tag => tag.trim().toLowerCase())
             .filter(tag => tag.length > 0);
+    },
+
+    setEventTags(tags) {
+        const input = document.getElementById('event-tags');
+        if (input && tags) {
+            input.value = tags.join(', ');
+        }
+    },
+
+    clearEventTags() {
+        const input = document.getElementById('event-tags');
+        if (input) {
+            input.value = '';
+        }
     },
 
     loadTags() {
