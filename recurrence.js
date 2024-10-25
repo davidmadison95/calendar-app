@@ -19,10 +19,11 @@ const RecurrenceModule = {
         const style = document.createElement('style');
         style.textContent = `
             .recurrence-container {
-                margin-bottom: 16px;
+                margin: 16px 0;
+                padding: 16px;
                 background: var(--surface);
-                padding: 12px;
                 border-radius: 8px;
+                border: 1px solid var(--border);
             }
 
             .recurrence-toggle {
@@ -32,13 +33,19 @@ const RecurrenceModule = {
                 margin-bottom: 8px;
             }
 
+            .recurrence-toggle input[type="checkbox"] {
+                width: 18px;
+                height: 18px;
+                cursor: pointer;
+            }
+
             .recurrence-options {
                 display: none;
-                padding: 12px;
+                padding: 16px;
+                background: var(--background);
                 border: 1px solid var(--border);
                 border-radius: 8px;
-                margin-top: 8px;
-                background: var(--background);
+                margin-top: 12px;
             }
 
             .recurrence-options.active {
@@ -48,8 +55,8 @@ const RecurrenceModule = {
 
             .weekday-selector {
                 display: flex;
-                gap: 4px;
-                margin: 8px 0;
+                gap: 8px;
+                margin: 12px 0;
                 justify-content: space-between;
             }
 
@@ -59,12 +66,17 @@ const RecurrenceModule = {
                 border-radius: 50%;
                 border: 1px solid var(--border);
                 background: var(--background);
+                color: var(--text);
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-size: 0.8em;
                 transition: all 0.2s ease;
+            }
+
+            .weekday-btn:hover {
+                background: var(--surface);
             }
 
             .weekday-btn.active {
@@ -74,18 +86,34 @@ const RecurrenceModule = {
             }
 
             .recurrence-end {
-                margin-top: 12px;
-                padding-top: 12px;
+                margin-top: 16px;
+                padding-top: 16px;
                 border-top: 1px solid var(--border);
             }
 
             .recurrence-preview {
-                margin-top: 8px;
-                padding: 8px;
+                margin-top: 12px;
+                padding: 12px;
                 background: var(--background);
-                border-radius: 4px;
+                border-radius: 6px;
                 font-size: 0.9em;
                 color: var(--text-secondary);
+            }
+
+            .custom-recurrence {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin: 12px 0;
+            }
+
+            .recurrence-input {
+                width: 70px;
+                padding: 6px 8px;
+                border: 1px solid var(--border);
+                border-radius: 4px;
+                background: var(--background);
+                color: var(--text);
             }
 
             @keyframes slideDown {
@@ -97,22 +125,6 @@ const RecurrenceModule = {
                     opacity: 1;
                     transform: translateY(0);
                 }
-            }
-
-            .custom-recurrence {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin: 8px 0;
-            }
-
-            .recurrence-input {
-                width: 60px;
-                padding: 4px 8px;
-                border: 1px solid var(--border);
-                border-radius: 4px;
-                background: var(--background);
-                color: var(--text);
             }
         `;
         document.head.appendChild(style);
@@ -333,8 +345,48 @@ const RecurrenceModule = {
                 .map(btn => parseInt(btn.dataset.day)),
             endType: document.getElementById('recurrence-end-type').value,
             endAfter: parseInt(document.getElementById('occurrence-count').value),
-            endDate: document.getElementById('end-date').value,
+            endDate: document.getElementById('end-date').value
         };
+    },
+
+    setRecurrenceRule(rule) {
+        if (!rule) {
+            this.clearRecurrenceForm();
+            return;
+        }
+
+        document.getElementById('repeat-event').checked = true;
+        document.getElementById('recurrence-options').classList.add('active');
+        document.getElementById('recurrence-pattern').value = rule.pattern;
+        document.getElementById('recurrence-interval').value = rule.interval;
+        document.getElementById('recurrence-end-type').value = rule.endType;
+
+        if (rule.weekdays) {
+            document.querySelectorAll('.weekday-btn').forEach(btn => {
+                btn.classList.toggle('active', 
+                    rule.weekdays.includes(parseInt(btn.dataset.day)));
+            });
+        }
+
+        if (rule.endType === 'after') {
+            document.getElementById('occurrence-count').value = rule.endAfter;
+        } else if (rule.endType === 'on-date') {
+            document.getElementById('end-date').value = rule.endDate;
+        }
+
+        this.updatePreview();
+    },
+
+    clearRecurrenceForm() {
+        document.getElementById('repeat-event').checked = false;
+        document.getElementById('recurrence-options').classList.remove('active');
+        document.getElementById('recurrence-pattern').value = 'daily';
+        document.getElementById('recurrence-interval').value = '1';
+        document.getElementById('recurrence-end-type').value = 'never';
+        document.querySelectorAll('.weekday-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        this.updatePreview();
     },
 
     generateRecurrences(event, startDate) {
@@ -386,7 +438,8 @@ const RecurrenceModule = {
             case 'daily':
                 next.setDate(next.getDate() + rule.interval);
                 break;
-            case 'weekly':
+            case '
+                case 'weekly':
                 next.setDate(next.getDate() + (rule.interval * 7));
                 break;
             case 'monthly':
@@ -400,13 +453,68 @@ const RecurrenceModule = {
                     next.setDate(next.getDate() + 1);
                 } while (next.getDay() === 0 || next.getDay() === 6);
                 break;
+            case 'custom':
+                switch(this.getIntervalUnit(rule)) {
+                    case 'days':
+                        next.setDate(next.getDate() + rule.interval);
+                        break;
+                    case 'weeks':
+                        next.setDate(next.getDate() + (rule.interval * 7));
+                        break;
+                    case 'months':
+                        next.setMonth(next.getMonth() + rule.interval);
+                        break;
+                    case 'years':
+                        next.setFullYear(next.getFullYear() + rule.interval);
+                        break;
+                }
+                break;
         }
 
         return next;
     },
 
+    getIntervalUnit(rule) {
+        const pattern = document.getElementById('recurrence-pattern').value;
+        switch(pattern) {
+            case 'daily': return 'days';
+            case 'weekly': return 'weeks';
+            case 'monthly': return 'months';
+            case 'yearly': return 'years';
+            default: return 'days';
+        }
+    },
+
     formatDate(date) {
         return date.toISOString().split('T')[0];
+    },
+
+    // Handle recurring event updates
+    updateRecurringEvent(eventData, allInstances = false) {
+        const events = window.events;
+        if (!events) return;
+
+        Object.keys(events).forEach(dateKey => {
+            events[dateKey] = events[dateKey].map(event => {
+                if (allInstances) {
+                    if (event.id === eventData.id || event.recurrenceId === eventData.id) {
+                        return { ...eventData, recurrenceId: event.recurrenceId || event.id };
+                    }
+                } else {
+                    if (event.id === eventData.id) {
+                        return eventData;
+                    }
+                }
+                return event;
+            });
+        });
+
+        localStorage.setItem('calendar-events', JSON.stringify(events));
+    },
+
+    // Helper function to check if an event is recurring
+    isRecurringEvent(event) {
+        return event.recurrence || event.recurrenceId;
     }
 };
 
