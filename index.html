@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Calendar with Recurrence</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="calendar-container">
+        <header class="calendar-header">
+            <h1 class="month-year" id="month-year"></h1>
+            <div class="controls">
+                <button class="control-button" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="control-button" id="prev-month">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="control-button" id="next-month">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="calendar-grid" id="calendar-grid">
+            <div class="day-label">Sun</div>
+            <div class="day-label">Mon</div>
+            <div class="day-label">Tue</div>
+            <div class="day-label">Wed</div>
+            <div class="day-label">Thu</div>
+            <div class="day-label">Fri</div>
+            <div class="day-label">Sat</div>
+        </div>
+    </div>
+
+    <!-- Event Modal -->
+    <div class="modal" id="event-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Add Event</h2>
+                <button class="control-button" id="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="input-group">
+                <label for="event-title">Event Title</label>
+                <input type="text" id="event-title" class="input-field" placeholder="Enter event title">
+            </div>
+
+            <div class="input-group">
+                <label for="event-description">Description</label>
+                <textarea id="event-description" class="input-field" rows="3" 
+                          placeholder="Enter event description"></textarea>
+            </div>
+
+            <div class="input-group">
+                <label for="event-category">Category</label>
+                <select id="event-category" class="input-field">
+                    <option value="work">Work</option>
+                    <option value="personal">Personal</option>
+                    <option value="important">Important</option>
+                    <option value="meeting">Meeting</option>
+                    <option value="deadline">Deadline</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <!-- Recurrence UI will be inserted here by RecurrenceModule -->
+
+            <div class="button-group">
+                <button class="button secondary-button" id="delete-event">Delete</button>
+                <button class="button primary-button" id="save-event">Save Event</button>
+            </div>
+
+            <div id="event-list"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="recurrence.js" type="module"></script>
+    <script src="app.js" type="module"></script>
+<script src="drag-drop.js" type="module"></script><script src="tags.js" type="module"></script><script src="weather.js" type="module"></script></body>
+</html>

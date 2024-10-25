@@ -1,0 +1,287 @@
+:root {
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --background: #ffffff;
+    --surface: #f3f4f6;
+    --text: #111827;
+    --text-secondary: #4b5563;
+    --border: #e5e7eb;
+    --event-work: #3b82f6;
+    --event-personal: #10b981;
+    --event-important: #ef4444;
+    --event-meeting: #8b5cf6;
+    --event-deadline: #f59e0b;
+    --event-other: #6b7280;
+}
+
+.dark-theme {
+    --primary: #60a5fa;
+    --primary-hover: #3b82f6;
+    --background: #111827;
+    --surface: #1f2937;
+    --text: #f9fafb;
+    --text-secondary: #9ca3af;
+    --border: #374151;
+}
+
+/* Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    transition: background-color 0.3s, color 0.3s;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Calendar Container */
+.calendar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+}
+
+/* Recurrence Specific Styles */
+.recurrence-container {
+    margin-bottom: 16px;
+    background: var(--surface);
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.recurrence-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.recurrence-toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.recurrence-options {
+    display: none;
+    padding: 16px;
+    background: var(--background);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-top: 12px;
+}
+
+.recurrence-options.active {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+}
+
+.weekday-selector {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0;
+    justify-content: space-between;
+}
+
+.weekday-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--background);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+    transition: all 0.2s ease;
+}
+
+.weekday-btn:hover {
+    background: var(--surface);
+}
+
+.weekday-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.recurrence-end {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.recurrence-preview {
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--background);
+    border-radius: 6px;
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+.custom-recurrence {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.recurrence-input {
+    width: 70px;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--background);
+    color: var(--text);
+}
+
+/* Event Preview with Recurrence Indicator */
+.event-preview {
+    position: relative;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    background: var(--surface);
+    transition: transform 0.2s;
+}
+
+.event-preview.recurring::after {
+    content: '\f2f1';  /* Font Awesome refresh icon */
+    font-family: 'Font Awesome 5 Free';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 0.8em;
+    opacity: 0.7;
+}
+
+.event-preview:hover {
+    transform: translateY(-2px);
+}
+
+/* Animation Keyframes */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Input Fields */
+.input-field {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--background);
+    color: var(--text);
+    transition: border-color 0.2s;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* Button Styles */
+.button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.primary-button {
+    background: var(--primary);
+    color: white;
+}
+
+.primary-button:hover {
+    background: var(--primary-hover);
+}
+
+.secondary-button {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.secondary-button:hover {
+    background: var(--border);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--background);
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .weekday-selector {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .weekday-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75em;
+    }
+
+    .custom-recurrence {
+        flex-wrap: wrap;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 16px;
+    }
+}
