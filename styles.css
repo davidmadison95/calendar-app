@@ -50,182 +50,132 @@ body {
     padding: 24px;
 }
 
-/* Recurrence Specific Styles */
-.recurrence-container {
-    margin-bottom: 16px;
-    background: var(--surface);
-    padding: 16px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-}
-
-.recurrence-toggle {
+/* Calendar Header */
+.calendar-header {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-.recurrence-toggle input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.recurrence-options {
-    display: none;
-    padding: 16px;
-    background: var(--background);
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    margin-top: 12px;
-}
-
-.recurrence-options.active {
-    display: block;
-    animation: slideDown 0.3s ease-out;
-}
-
-.weekday-selector {
-    display: flex;
-    gap: 8px;
-    margin: 12px 0;
     justify-content: space-between;
-}
-
-.weekday-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    background: var(--background);
-    cursor: pointer;
-    display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 0.8em;
-    transition: all 0.2s ease;
+    margin-bottom: 24px;
+    padding: 0 16px;
 }
 
-.weekday-btn:hover {
-    background: var(--surface);
-}
-
-.weekday-btn.active {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-}
-
-.recurrence-end {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-}
-
-.recurrence-preview {
-    margin-top: 12px;
-    padding: 12px;
-    background: var(--background);
-    border-radius: 6px;
-    font-size: 0.9em;
-    color: var(--text-secondary);
-}
-
-.custom-recurrence {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 12px 0;
-}
-
-.recurrence-input {
-    width: 70px;
-    padding: 6px 8px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    background: var(--background);
+.month-year {
+    font-size: 1.8rem;
+    font-weight: 600;
     color: var(--text);
 }
 
-/* Event Preview with Recurrence Indicator */
-.event-preview {
-    position: relative;
-    padding: 8px;
-    margin-bottom: 8px;
-    border-radius: 6px;
+.controls {
+    display: flex;
+    gap: 12px;
+}
+
+.nav-button {
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text);
+}
+
+.nav-button:hover {
     background: var(--surface);
+    transform: translateY(-1px);
+}
+
+/* Calendar Grid */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+    padding: 16px;
+}
+
+.day-label {
+    text-align: center;
+    font-weight: 500;
+    color: var(--text-secondary);
+    padding: 8px;
+    font-size: 0.9rem;
+}
+
+.day {
+    background: var(--background);
+    border-radius: 8px;
+    padding: 8px;
+    min-height: 120px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.day:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.day.empty {
+    background: none;
+    border: none;
+    cursor: default;
+}
+
+.day.empty:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.day.today {
+    border: 2px solid var(--primary);
+}
+
+.day-number {
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+/* Event Styles */
+.event-preview {
+    padding: 4px 8px;
+    margin: 4px 0;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
     transition: transform 0.2s;
 }
 
+.event-preview.work { background-color: var(--event-work); }
+.event-preview.personal { background-color: var(--event-personal); }
+.event-preview.important { background-color: var(--event-important); }
+.event-preview.meeting { background-color: var(--event-meeting); }
+.event-preview.deadline { background-color: var(--event-deadline); }
+.event-preview.other { background-color: var(--event-other); }
+
 .event-preview.recurring::after {
-    content: '\f2f1';  /* Font Awesome refresh icon */
-    font-family: 'Font Awesome 5 Free';
-    position: absolute;
-    top: 8px;
-    right: 8px;
+    content: '↻';
+    margin-left: 4px;
     font-size: 0.8em;
-    opacity: 0.7;
 }
 
 .event-preview:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
-/* Animation Keyframes */
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Input Fields */
-.input-field {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--background);
-    color: var(--text);
-    transition: border-color 0.2s;
-}
-
-.input-field:focus {
-    outline: none;
-    border-color: var(--primary);
-}
-
-/* Button Styles */
-.button {
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-}
-
-.primary-button {
-    background: var(--primary);
-    color: white;
-}
-
-.primary-button:hover {
-    background: var(--primary-hover);
-}
-
-.secondary-button {
+.event-count {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 4px;
     background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-}
-
-.secondary-button:hover {
-    background: var(--border);
+    border-radius: 4px;
+    margin-top: 4px;
 }
 
 /* Modal Styles */
@@ -240,6 +190,7 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    padding: 20px;
 }
 
 .modal.active {
@@ -254,34 +205,156 @@ body {
     max-width: 500px;
     max-height: 90vh;
     overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 24px;
+}
+
+.modal-header h2 {
+    color: var(--text);
+    font-size: 1.5rem;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 1.2em;
+    padding: 4px;
+}
+
+.close-button:hover {
+    color: var(--primary);
+}
+
+/* Form Styles */
+.input-group {
     margin-bottom: 16px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.input-field {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--background);
+    color: var(--text);
+    transition: all 0.2s;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+textarea.input-field {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Button Styles */
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-weight: 500;
+}
+
+.primary-button {
+    background: var(--primary);
+    color: white;
+}
+
+.primary-button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.secondary-button {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.secondary-button:hover {
+    background: var(--border);
+    transform: translateY(-1px);
+}
+
+.event-list {
+    margin-top: 16px;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .weekday-selector {
-        flex-wrap: wrap;
-        justify-content: flex-start;
+    .calendar-container {
+        padding: 16px;
     }
 
-    .weekday-btn {
-        width: 32px;
-        height: 32px;
-        font-size: 0.75em;
+    .month-year {
+        font-size: 1.4rem;
     }
 
-    .custom-recurrence {
-        flex-wrap: wrap;
+    .calendar-grid {
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .day {
+        min-height: 100px;
+        padding: 6px;
+    }
+
+    .event-preview {
+        font-size: 0.8em;
+        padding: 3px 6px;
     }
 
     .modal-content {
         width: 95%;
         padding: 16px;
     }
+
+    .button {
+        padding: 6px 12px;
+        font-size: 0.9em;
+    }
+}
+
+/* Dark Mode Adjustments */
+.dark-theme .modal-content {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.dark-theme .input-field {
+    background: var(--surface);
+}
+
+.dark-theme .event-preview {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
