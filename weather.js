@@ -1,6 +1,6 @@
 // Weather Integration Module
 const WeatherModule = {
-    API_KEY: 'YOUR_WEATHER_API_KEY', // Replace with your OpenWeatherMap API key
+    API_KEY: 'c5e46794475d8c855893f44322799734', // OpenWeatherMap API key
     city: 'London', // Default city, can be made configurable
     weatherCache: new Map(),
 
