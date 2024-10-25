@@ -10,11 +10,11 @@
 <body>
     <div class="calendar-container">
         <div class="calendar-header">
-            <h1 id="month-year" class="month-year"></h1>
             <div class="controls">
                 <button id="prev-month" class="nav-button">
                     <i class="fas fa-chevron-left"></i>
                 </button>
+                <h1 id="month-year" class="month-year"></h1>
                 <button id="theme-toggle" class="nav-button">
                     <i class="fas fa-moon"></i>
                 </button>
@@ -24,14 +24,17 @@
             </div>
         </div>
 
-        <div id="calendar-grid" class="calendar-grid">
-            <div class="day-label">Sun</div>
-            <div class="day-label">Mon</div>
-            <div class="day-label">Tue</div>
-            <div class="day-label">Wed</div>
-            <div class="day-label">Thu</div>
-            <div class="day-label">Fri</div>
-            <div class="day-label">Sat</div>
+        <div class="calendar-grid">
+            <div class="day-labels">
+                <div class="day-label">Sun</div>
+                <div class="day-label">Mon</div>
+                <div class="day-label">Tue</div>
+                <div class="day-label">Wed</div>
+                <div class="day-label">Thu</div>
+                <div class="day-label">Fri</div>
+                <div class="day-label">Sat</div>
+            </div>
+            <div id="calendar-grid" class="days-grid"></div>
         </div>
     </div>
 
