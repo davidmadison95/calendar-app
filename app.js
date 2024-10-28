@@ -9,14 +9,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // DOM Elements
     const monthYearElement = document.getElementById('month-year');
-    const calendarGrid = document.querySelector('.days-grid'); // Updated selector
+    const calendarGrid = document.querySelector('.days-grid');
     const eventModal = document.getElementById('event-modal');
+    const eventForm = document.getElementById('event-form');
     const modalTitle = document.getElementById('modal-title');
     const eventTitleInput = document.getElementById('event-title');
     const eventDescriptionInput = document.getElementById('event-description');
     const eventCategorySelect = document.getElementById('event-category');
     const eventList = document.getElementById('event-list');
     const deleteButton = document.getElementById('delete-event');
+    const closeButton = document.getElementById('close-modal');
 
     // Utility Functions
     const formatDate = (date) => {
@@ -53,7 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Event Management
-    const saveEvent = () => {
+    const saveEvent = (e) => {
+        if (e) e.preventDefault();
+        
         const title = eventTitleInput.value.trim();
         const description = eventDescriptionInput.value.trim();
         const category = eventCategorySelect.value;
@@ -67,29 +71,18 @@ document.addEventListener('DOMContentLoaded', () => {
             id: selectedEventId || generateEventId(),
             title,
             description,
-            category,
-            tags: TagsModule.getEventTags(),
-            recurrence: RecurrenceModule.getRecurrenceRule()
+            category
         };
 
         if (selectedEventId) {
-            // Update existing event and its recurrences
-            updateRecurringEvent(eventData);
+            // Update existing event
+            const eventIndex = events[dateKey].findIndex(e => e.id === selectedEventId);
+            if (eventIndex !== -1) {
+                events[dateKey][eventIndex] = eventData;
+            }
         } else {
             // Add new event
             events[dateKey].push(eventData);
-            
-            // Generate recurrences if applicable
-            if (eventData.recurrence) {
-                const recurrences = RecurrenceModule.generateRecurrences(eventData, selectedDate);
-                recurrences.forEach(recurrence => {
-                    const recurrenceDate = formatDate(new Date(recurrence.date));
-                    if (!events[recurrenceDate]) {
-                        events[recurrenceDate] = [];
-                    }
-                    events[recurrenceDate].push(recurrence);
-                });
-            }
         }
 
         localStorage.setItem('calendar-events', JSON.stringify(events));
@@ -97,38 +90,12 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal();
     };
 
-    const updateRecurringEvent = (eventData) => {
-        // Update all instances of a recurring event
-        Object.keys(events).forEach(dateKey => {
-            events[dateKey] = events[dateKey].map(event => {
-                if (event.id === eventData.id || event.recurrenceId === eventData.id) {
-                    return {
-                        ...eventData,
-                        recurrenceId: event.recurrenceId || event.id
-                    };
-                }
-                return event;
-            });
-        });
-    };
+    const deleteEvent = (dateKey, eventId) => {
+        if (!dateKey || !eventId) return;
 
-    const deleteEvent = (dateKey, eventId, deleteAll = false) => {
-        if (deleteAll) {
-            // Delete all instances of a recurring event
-            Object.keys(events).forEach(date => {
-                events[date] = events[date].filter(event => 
-                    event.id !== eventId && event.recurrenceId !== eventId
-                );
-                if (events[date].length === 0) {
-                    delete events[date];
-                }
-            });
-        } else {
-            // Delete single instance
-            events[dateKey] = events[dateKey].filter(event => event.id !== eventId);
-            if (events[dateKey].length === 0) {
-                delete events[dateKey];
-            }
+        events[dateKey] = events[dateKey].filter(event => event.id !== eventId);
+        if (events[dateKey].length === 0) {
+            delete events[dateKey];
         }
 
         localStorage.setItem('calendar-events', JSON.stringify(events));
@@ -149,34 +116,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         eventList.innerHTML = dateEvents.map(event => `
-            <div class="event-preview ${event.category} ${event.recurrence ? 'recurring' : ''}"
-                 data-event-id="${event.id}">
+            <div class="event-preview ${event.category}" data-event-id="${event.id}">
                 <div class="event-content">
                     <div class="event-title">${event.title}</div>
-                    ${event.description ? `
-                        <div class="event-description">${event.description}</div>
-                    ` : ''}
-                    ${event.recurrence ? `
-                        <div class="recurrence-badge">
-                            <i class="fas fa-sync-alt"></i> Recurring
-                        </div>
-                    ` : ''}
+                    ${event.description ? `<div class="event-description">${event.description}</div>` : ''}
                 </div>
                 <div class="event-actions">
-                    <button onclick="editEvent('${event.id}', '${dateKey}')" class="edit-button">
+                    <button class="edit-button" data-event-id="${event.id}">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button onclick="deleteEvent('${dateKey}', '${event.id}')" class="delete-button">
+                    <button class="delete-button" data-event-id="${event.id}">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
         `).join('');
 
-        // Show delete button only when editing an event
-        deleteButton.style.display = 'none';
+        // Add event listeners for edit and delete buttons
+        eventList.querySelectorAll('.edit-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const eventId = e.currentTarget.dataset.eventId;
+                editEvent(eventId, dateKey);
+            });
+        });
+
+        eventList.querySelectorAll('.delete-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const eventId = e.currentTarget.dataset.eventId;
+                deleteEvent(dateKey, eventId);
+            });
+        });
+
         clearEventForm();
-        selectedEventId = null;
         eventModal.classList.add('active');
     };
 
@@ -188,30 +159,13 @@ document.addEventListener('DOMContentLoaded', () => {
         eventTitleInput.value = event.title;
         eventDescriptionInput.value = event.description || '';
         eventCategorySelect.value = event.category;
-
-        // Show delete button when editing
         deleteButton.style.display = 'block';
-
-        if (event.recurrence) {
-            RecurrenceModule.setRecurrenceRule(event.recurrence);
-        }
-        
-        if (event.tags) {
-            TagsModule.setEventTags(event.tags);
-        }
     };
 
     const clearEventForm = () => {
-        eventTitleInput.value = '';
-        eventDescriptionInput.value = '';
-        eventCategorySelect.value = 'work';
+        eventForm.reset();
         selectedEventId = null;
-        if (RecurrenceModule.clearRecurrenceForm) {
-            RecurrenceModule.clearRecurrenceForm();
-        }
-        if (TagsModule.clearEventTags) {
-            TagsModule.clearEventTags();
-        }
+        deleteButton.style.display = 'none';
     };
 
     const closeModal = () => {
@@ -222,8 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Calendar Rendering
     const renderCalendar = () => {
         updateMonthYear();
-
-        // Clear existing calendar days
         calendarGrid.innerHTML = '';
 
         const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
@@ -262,14 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (index < 3) {
                     const eventElement = document.createElement('div');
                     eventElement.className = `event-preview ${event.category}`;
-                    if (event.recurrence || event.recurrenceId) {
-                        eventElement.classList.add('recurring');
-                    }
                     eventElement.textContent = event.title;
-                    
-                    // Make event draggable
-                    DragDropModule.makeEventDraggable(eventElement, event, date);
-                    
                     dayElement.appendChild(eventElement);
                 } else if (index === 3) {
                     const moreElement = document.createElement('div');
@@ -279,37 +224,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Add weather if enabled
-            if (WeatherModule && WeatherModule.addWeatherToDay) {
-                WeatherModule.addWeatherToDay(dayElement, date);
-            }
-
-            // Make day a drop zone for drag and drop
-            DragDropModule.setupDropZone(dayElement, date);
-
             dayElement.addEventListener('click', () => showEventsForDate(date));
             calendarGrid.appendChild(dayElement);
         }
     };
 
     // Event Listeners
+    eventForm.addEventListener('submit', saveEvent);
     document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
     document.getElementById('prev-month').addEventListener('click', () => navigateMonth(-1));
     document.getElementById('next-month').addEventListener('click', () => navigateMonth(1));
-    document.getElementById('save-event').addEventListener('click', saveEvent);
-    document.getElementById('close-modal').addEventListener('click', closeModal);
+    closeButton.addEventListener('click', closeModal);
     deleteButton.addEventListener('click', () => {
         if (selectedEventId) {
-            const dateKey = formatDate(selectedDate);
-            const event = events[dateKey].find(e => e.id === selectedEventId);
-            const isRecurring = event.recurrence || event.recurrenceId;
-            
-            if (isRecurring) {
-                const confirmDelete = confirm('Delete all occurrences of this recurring event?');
-                deleteEvent(dateKey, selectedEventId, confirmDelete);
-            } else {
-                deleteEvent(dateKey, selectedEventId);
-            }
+            deleteEvent(formatDate(selectedDate), selectedEventId);
         }
     });
 
@@ -325,23 +253,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Make functions globally available
-    window.editEvent = editEvent;
-    window.deleteEvent = deleteEvent;
-    window.renderCalendar = renderCalendar;
-
     // Initialize theme
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-theme');
         document.querySelector('#theme-toggle i').classList.replace('fa-moon', 'fa-sun');
     }
-
-    // Initialize all modules
-    if (TagsModule && TagsModule.initialize) TagsModule.initialize();
-    if (RecurrenceModule && RecurrenceModule.initialize) RecurrenceModule.initialize();
-    if (DragDropModule && DragDropModule.initialize) DragDropModule.initialize();
-    if (WeatherModule && WeatherModule.initialize) WeatherModule.initialize();
 
     // Initialize calendar
     renderCalendar();
