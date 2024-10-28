@@ -34,10 +34,11 @@
                 <div class="day-label">Fri</div>
                 <div class="day-label">Sat</div>
             </div>
-            <div id="calendar-grid" class="days-grid"></div>
+            <div class="days-grid" id="calendar-grid"></div>
         </div>
     </div>
 
+    <!-- Event Modal -->
     <div id="event-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -47,34 +48,36 @@
                 </button>
             </div>
 
-            <div class="input-group">
-                <label for="event-title">Event Title</label>
-                <input type="text" id="event-title" class="input-field" placeholder="Enter event title">
-            </div>
+            <form id="event-form">
+                <div class="input-group">
+                    <label for="event-title">Event Title</label>
+                    <input type="text" id="event-title" class="input-field" placeholder="Enter event title" required>
+                </div>
 
-            <div class="input-group">
-                <label for="event-description">Description</label>
-                <textarea id="event-description" class="input-field" placeholder="Enter event description"></textarea>
-            </div>
+                <div class="input-group">
+                    <label for="event-description">Description</label>
+                    <textarea id="event-description" class="input-field" placeholder="Enter event description"></textarea>
+                </div>
 
-            <div class="input-group">
-                <label for="event-category">Category</label>
-                <select id="event-category" class="input-field">
-                    <option value="work">Work</option>
-                    <option value="personal">Personal</option>
-                    <option value="important">Important</option>
-                    <option value="meeting">Meeting</option>
-                    <option value="deadline">Deadline</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
+                <div class="input-group">
+                    <label for="event-category">Category</label>
+                    <select id="event-category" class="input-field" required>
+                        <option value="work">Work</option>
+                        <option value="personal">Personal</option>
+                        <option value="important">Important</option>
+                        <option value="meeting">Meeting</option>
+                        <option value="deadline">Deadline</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
 
-            <div id="event-list" class="event-list"></div>
+                <div id="event-list" class="event-list"></div>
 
-            <div class="button-group">
-                <button id="delete-event" class="button secondary-button">Delete</button>
-                <button id="save-event" class="button primary-button">Save Event</button>
-            </div>
+                <div class="button-group">
+                    <button type="button" id="delete-event" class="button secondary-button" style="display: none;">Delete</button>
+                    <button type="submit" id="save-event" class="button primary-button">Save Event</button>
+                </div>
+            </form>
         </div>
     </div>
 
